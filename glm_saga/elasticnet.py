@@ -12,7 +12,7 @@ from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import StepLR
 from torch.autograd import grad
 from torch.utils.data import random_split
-
+from sklearn.metrics import r2_score
 # Toy example
 import numpy as np
 import time
@@ -37,7 +37,12 @@ def get_device(module):
 ####### 
 # Solver assumes standardized input
 class IndexedTensorDataset(TensorDataset): 
-    def __getitem__(self, index): 
+    def __getitem__(self, index):
+        '''
+        val 是从父类获取的样本（例如，特征和标签），而 (index,) 是一个只包含索引的元组。
+        使用 + 操作符将这两个元组合并在一起，返回的结果将包含特征、标签和索引。
+        返回值的结构通常是一个元组，例如：(特征, 标签, 索引)。
+        '''
         val = super(IndexedTensorDataset, self).__getitem__(index)
         return val + (index,)
 
@@ -730,8 +735,10 @@ class GLM():
     
         print("Initializing linear model...")
         self.linear = nn.Linear(X_tr.size(1), y_tr.size[1]).cuda()
-        weight = linear.weight
-        bias = linear.bias
+        # weight =  linear.weight
+        weight =  self.linear.weight
+        # bias =  linear.bias
+        bias =  self.linear.bias
 
         for p in [weight,bias]: 
             p.data.zero_()
